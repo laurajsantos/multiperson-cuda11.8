@@ -4,7 +4,7 @@ from inspect import getfullargspec
 import torch
 
 from .utils import cast_tensor_type
-
+import inspect
 
 def auto_fp16(apply_to=None, out_fp32=False):
     """Decorator to enable fp16 training automatically.

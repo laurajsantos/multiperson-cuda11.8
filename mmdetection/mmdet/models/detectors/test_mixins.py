@@ -169,11 +169,13 @@ class SMPLTestMixin(object):
                          img_meta,
                          det_bboxes,
                          img_shape,
-                         FOCAL_LENGTH=1000,
+                         FOCAL_LENGTH=389,
                          rescale=False):
         # image shape of the first image in the batch (only one)
         ori_shape = img_meta[0]['ori_shape']
         scale_factor = img_meta[0]['scale_factor']
+        parame = img_meta[0]['param']
+        #print('parameter',parame)
         if det_bboxes.shape[0] == 0:
             return None
         else:
@@ -189,7 +191,7 @@ class SMPLTestMixin(object):
             smpl_pred = self.smpl_head(smpl_feats)
 
         # TODO: Calculate camera translation
-
+        #print('fl_inside_mixins',FOCAL_LENGTH)
         pred_rotmat = smpl_pred['pred_rotmat']
         pred_camera = smpl_pred['pred_camera']
         pred_joints = smpl_pred['pred_joints']
@@ -212,14 +214,18 @@ class SMPLTestMixin(object):
             pred_bboxes[..., 1] - pred_bboxes[..., 3]) > 5)
         crop_translation[..., 2] = 2 * FOCAL_LENGTH / (1e-6 + pred_camera[..., 0] * bboxes_size)
         rotation_Is = torch.eye(3).unsqueeze(0).repeat(batch_size, 1, 1).to(pred_joints.device)
-        depth = 2 * FOCAL_LENGTH / (1e-6 + pred_camera[..., 0] * bboxes_size)
+        depth = parame * FOCAL_LENGTH / (1e-6 + pred_camera[..., 0] * bboxes_size)
         translation = torch.zeros((batch_size, 3), dtype=pred_camera.dtype).to(
             pred_joints.device)
         translation[:, :-1] = depth[:, None] * (center_pts + pred_camera[:, 1:] * bboxes_size.unsqueeze(
             -1) - img_size / 2) / FOCAL_LENGTH
         translation[:, -1] = depth
         smpl_pred['pred_translation'] = translation
-
+        #print('bboxes_size', bboxes_size, pred_camera[...,0])
+        #print('fl_test_mixins',FOCAL_LENGTH)
+        ffocal = 1.1*(1e-6 + pred_camera[...,0]*bboxes_size)
+        #print('ffocal', ffocal)
+        #print('translation_mixins',translation)
         return smpl_pred
 
     def aug_test_smpl(self, feats, img_metas, det_bboxes, det_labels):

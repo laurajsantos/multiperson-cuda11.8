@@ -9,7 +9,7 @@ from ..registry import DETECTORS
 from mmdet.core import bbox2roi, bbox2result, build_assigner, build_sampler, delta2bbox
 from mmdet.core import tensor2imgs, get_classes, auto_fp16
 import numpy as np
-
+import inspect
 
 @DETECTORS.register_module
 class SMPLRCNN(BaseDetector, RPNTestMixin, BBoxTestMixin,
@@ -367,11 +367,11 @@ class SMPLRCNN(BaseDetector, RPNTestMixin, BBoxTestMixin,
             bbox_results = bbox2result(det_bboxes, det_labels,
                                        self.bbox_head.num_classes)
         # TODO: Add simple SMPL test here. Try to reuse function in SMPL loss.
-
+        #print('img_meta',img_meta)
         if not self.with_smpl:
             return bbox_results
         if self.with_smpl:
-            smpl_results = self.simple_test_smpl(x, img_meta, det_bboxes, img.shape, rescale=rescale)
+            smpl_results = self.simple_test_smpl(x, img_meta, det_bboxes, img.shape, img_meta[0]['focal_length'],rescale=rescale)
             return bbox_results, smpl_results
 
     def aug_test(self, imgs, img_metas, rescale=False):
@@ -413,9 +413,11 @@ class SMPLRCNN(BaseDetector, RPNTestMixin, BBoxTestMixin,
             #        len(imgs), len(img_metas)))
         # TODO: remove the restriction of imgs_per_gpu == 1 when prepared
         imgs_per_gpu = imgs.size(0)
+        #print('passing here')
         assert imgs_per_gpu == 1
 
         if num_augs == 1:
+            #print('parent', inspect.getouterframes( inspect.currentframe() )[1])
             return self.simple_test(imgs, img_metas, **kwargs)
         else:
             return self.aug_test(imgs, img_metas, **kwargs)

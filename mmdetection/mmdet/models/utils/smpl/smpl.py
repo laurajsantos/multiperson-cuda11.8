@@ -2,7 +2,7 @@ import torch
 import numpy as np
 import smplx
 from smplx import SMPL as _SMPL
-from smplx.body_models import ModelOutput
+from smplx.body_models import SMPLOutput
 from smplx.lbs import vertices2joints
 
 joint_names = [
@@ -55,12 +55,15 @@ class SMPL(_SMPL):
         self.joint_map = torch.tensor(joints, dtype=torch.long)
 
     def forward(self, *args, **kwargs):
+        #import pdb; pdb.set_trace()
+        #print('SMPL-entrei')
         kwargs['get_skin'] = True
+        #import pdb; pdb.set_trace()
         smpl_output = super(SMPL, self).forward(*args, **kwargs)
         extra_joints = vertices2joints(self.J_regressor_extra, smpl_output.vertices)
         joints = torch.cat([smpl_output.joints, extra_joints], dim=1)
         joints = joints[:, self.joint_map, :]
-        output = ModelOutput(vertices=smpl_output.vertices,
+        output = SMPLOutput(vertices=smpl_output.vertices,
                              global_orient=smpl_output.global_orient,
                              body_pose=smpl_output.body_pose,
                              joints=joints,

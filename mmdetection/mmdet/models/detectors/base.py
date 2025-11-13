@@ -7,7 +7,7 @@ import torch.nn as nn
 import pycocotools.mask as maskUtils
 
 from mmdet.core import tensor2imgs, get_classes, auto_fp16
-
+import inspect
 
 class BaseDetector(nn.Module):
     """Base class for detectors"""
@@ -82,9 +82,11 @@ class BaseDetector(nn.Module):
 
     @auto_fp16(apply_to=('img', ))
     def forward(self, img, img_meta, return_loss=True, **kwargs):
+        #print('inspect_base',inspect.getouterframes( inspect.currentframe() )[1])
         if return_loss:
             return self.forward_train(img, img_meta, **kwargs)
         else:
+            #import pdb; pdb.set_trace()
             return self.forward_test(img, img_meta, **kwargs)
 
     def show_result(self,

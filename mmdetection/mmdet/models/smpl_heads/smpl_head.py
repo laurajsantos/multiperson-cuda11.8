@@ -17,7 +17,7 @@ class SMPLHead(nn.Module):
 
     def __init__(self, in_size=7, in_channels=256, num_convs=4, conv_out_channels=256,
                  init_param_file='data/neutral_smpl_mean_params.h5',
-                 joint_names=None, joint_map=None, joint_regressor_extra=None, FOCAL_LENGTH=1000,
+                 joint_names=None, joint_map=None, joint_regressor_extra=None, FOCAL_LENGTH=389,
                  loss_cfg=dict(type='SMPLLoss'), implicity_size=1024,
                  ):
         super(SMPLHead, self).__init__()
@@ -124,6 +124,7 @@ class SMPLHead(nn.Module):
         xshape3 = x3[:, self.npose:self.npose + 10].contiguous()
         xcam3 = x3[:, self.npose + 10:].contiguous()
 
+        
         pred_camera = xcam3
         pred_betas = xshape3
         pred_rotmat = rot6d_to_rotmat(xpose3).view(batch_size, 24, 3, 3)

@@ -1,6 +1,7 @@
 #include <ATen/ATen.h>
 #include <THC/THCAtomics.cuh>
-
+#include <ATen/cuda/CUDAContext.h>
+#include <ATen/cuda/CUDAEvent.h>
 #define CUDA_1D_KERNEL_LOOP(i, n)                            \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < n; \
        i += blockDim.x * gridDim.x)
@@ -142,7 +143,7 @@ int ROIAlignForwardLaucher(const at::Tensor features, const at::Tensor rois,
                 sample_num, channels, height, width, pooled_height,
                 pooled_width, top_data);
       }));
-  THCudaCheck(cudaGetLastError());
+  AT_CUDA_CHECK(cudaGetLastError());
   return 1;
 }
 
@@ -289,6 +290,6 @@ int ROIAlignBackwardLaucher(const at::Tensor top_grad, const at::Tensor rois,
                 channels, height, width, pooled_height, pooled_width,
                 bottom_diff);
       }));
-  THCudaCheck(cudaGetLastError());
+  AT_CUDA_CHECK(cudaGetLastError());
   return 1;
 }
