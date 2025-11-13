@@ -6,10 +6,10 @@ from mmdetection.mmdet.core.utils.lr_hooks import SequenceLrUpdaterHook, PowerLr
 import math
 
 WITH_NR = True
-FOCAL_LENGTH = 1000
+FOCAL_LENGTH = 594
 model = dict(
     type='SMPLRCNN',
-    pretrained='modelzoo://resnet50',
+    pretrained='https://download.pytorch.org/models/resnet50-19c8e357.pth',
     backbone=dict(
         type='ResNet',
         depth=50,
